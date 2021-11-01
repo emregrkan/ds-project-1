@@ -182,11 +182,10 @@ void ll_free(struct node** list)
 
 void calculate(struct node** n1, struct node** n2, struct node** res)
 {
-  int d, c = 0, b = 0, u = 0;
-
+  char u = '0'; // 8 bit
+  int d, c = 0, b = 0;
   struct node* i = NULL;
   struct node* j = NULL;
-  struct node* l = NULL;
 
   for (i = *n2; i != NULL; i = i->next)
   {
@@ -194,44 +193,45 @@ void calculate(struct node** n1, struct node** n2, struct node** res)
     {
       d = i->data * j->data + c;
 
-      if (u == 0)
+      switch (u)
       {
-        c = d / 10;
-        d = d % 10;
+        case '0':
+          c = d / 10;
+          d = d % 10;
 
-        ll_pushf(d, &l);
-      }
-      else
-      {
-        l->data += d;
-        c = l->data / 10;
-        l->data = l->data % 10;
+          ll_pushf(d, res);
+          break;
 
-        if (l != NULL && l->prev != NULL)
-        {
-          l = l->prev;
-        }
-        else
-        {
-          u = 0;
-        }
+        default:
+          (*res)->data += d;
+          c = (*res)->data / 10;
+          (*res)->data = (*res)->data % 10;
+
+          if (*res != NULL && (*res)->prev != NULL)
+          {
+            *res = (*res)->prev;
+          }
+          else
+          {
+            u = '0';
+          }
+          
+          break;
       }
 
       if (j->next == NULL && c != 0)
       {
-        ll_pushf(c, &l);
+        ll_pushf(c, res);
         c = 0;
       }
     }
     
     if (i->next != NULL)
     {
-      u = 1;
-      l = ll_rget_node(++b, &l);
+      u = '1';
+      *res = ll_rget_node(++b, res);
     }
   }
-
-  *res = l;
 
   return;
 }

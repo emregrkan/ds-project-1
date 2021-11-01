@@ -1,10 +1,13 @@
 CC=gcc
 
+clean:
+	@rm -rf *.txt
+
 input:
-	printf "%d\n%d" $$RANDOM $$RANDOM >> input.txt
+	@printf "%d\n%d" $$RANDOM $$RANDOM >> input.txt
 
-build: main.c
-	$(CC) -o main main.c
+build:
+	@$(CC) -o main main.c
 
-run: main
-	./main
+run: clean input build
+	@./main

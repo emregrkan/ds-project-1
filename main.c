@@ -15,11 +15,11 @@ struct node
 };
 
 void ll_pushf(int, struct node**);
-struct node* ll_rget_node(int, struct node**);
 int ll_set_numbers(struct node** n1, struct node** n2);
-void ll_free(struct node**);
+struct node* ll_rget_node(int, struct node**);
 int ll_fprint(struct node**);
 int ll_fprintr(struct node**);
+void ll_free(struct node**);
 
 void calculate(struct node**, struct node**, struct node**);
 
@@ -65,6 +65,43 @@ void ll_pushf(int data, struct node** list)
   return;
 }
 
+int ll_set_numbers(struct node** n1, struct node** n2)
+{
+  int d, n = 0;
+  char c;
+  FILE* file;
+
+  if ((file = fopen("input.txt", "r")) == NULL)
+  {
+    return EXIT_FAILURE;
+  }
+
+  while ((c = fgetc(file)) != EOF)
+  {
+    if (c == '\n')
+    {
+      n = 1;
+      continue;
+    }
+    
+    d = c - '0';
+   
+    switch (n)
+    {
+      case 0:
+        ll_pushf(d, n1);
+        break;
+      default:
+        ll_pushf(d, n2);
+        break;
+    }
+  }
+  
+  fclose(file);
+
+  return EXIT_SUCCESS;
+}
+
 struct node* ll_rget_node(int index, struct node** list)
 {
   int i;
@@ -80,38 +117,47 @@ struct node* ll_rget_node(int index, struct node** list)
   return n;
 }
 
-int ll_set_numbers(struct node** n1, struct node** n2)
+int ll_fprint(struct node** list)
 {
-  int d, s = 0;
-  char c;
   FILE* file;
+  struct node* i = NULL;
 
-  if ((file = fopen("input.txt", "r")) == NULL)
+  if ((file = fopen("output.txt", "a")) == NULL)
+  {
+    return EXIT_FAILURE;
+  }
+  
+  for (i = *list; i != NULL; i = i->next)
+  {
+    fprintf(file, "%i", i->data);
+  }
+
+  fprintf(file, "\n");
+
+  fclose(file);
+
+  return EXIT_SUCCESS;
+}
+
+int ll_fprintr(struct node** list)
+{
+  FILE* file;
+  struct node* i = NULL;
+
+  if ((file = fopen("output.txt", "a")) == NULL)
   {
     return EXIT_FAILURE;
   }
 
-  while ((c = fgetc(file)) != EOF)
+  for (i = *list; i->next != NULL; i = i->next);
+
+  for (; i != NULL; i = i->prev)
   {
-    if (c == '\n')
-    {
-      s = 1;
-      continue;
-    }
-    
-    d = c - '0';
-   
-    switch (s)
-    {
-      case 0:
-        ll_pushf(d, n1);
-        break;
-      default:
-        ll_pushf(d, n2);
-        break;
-    }
+    fprintf(file, "%i", i->data);
   }
-  
+
+  fprintf(file, "\n");
+
   fclose(file);
 
   return EXIT_SUCCESS;
@@ -134,56 +180,6 @@ void ll_free(struct node** list)
   return;
 }
 
-int ll_fprint(struct node** list)
-{
-  char c;
-  FILE* file;
-  struct node* i= NULL;
-
-  if ((file = fopen("output.txt", "a")) == NULL)
-  {
-    return EXIT_FAILURE;
-  }
-  
-  fputc('\n', file);
-
-  for (i = *list; i != NULL; i = i->next)
-  {
-    c = i->data + '0';
-    fputc(c, file);
-  }
-
-  fclose(file);
-
-  return EXIT_SUCCESS;
-}
-
-int ll_fprintr(struct node** list)
-{
-  char c;
-  FILE* file;
-  struct node* i= NULL;
-
-  if ((file = fopen("output.txt", "a")) == NULL)
-  {
-    return EXIT_FAILURE;
-  }
-  
-  fputc('\n', file);
-
-  for (i = *list; i->next != NULL; i = i->next);
-
-  for (; i != NULL; i = i->prev)
-  {
-    c = i->data + '0';
-    fputc(c, file);
-  }
-
-  fclose(file);
-
-  return EXIT_SUCCESS;
-}
-
 void calculate(struct node** n1, struct node** n2, struct node** res)
 {
   int d, c = 0, b = 0, u = 0;
@@ -196,15 +192,20 @@ void calculate(struct node** n1, struct node** n2, struct node** res)
   {
     for (j = *n1; j != NULL; j = j->next)
     {
-      d = i->data * j->data;
+      d = i->data * j->data + c;
 
       if (u == 0)
       {
+        c = d / 10;
+        d = d % 10;
+
         ll_pushf(d, &l);
       }
       else
       {
         l->data += d;
+        c = l->data / 10;
+        l->data = l->data % 10;
 
         if (l != NULL && l->prev != NULL)
         {
@@ -214,6 +215,12 @@ void calculate(struct node** n1, struct node** n2, struct node** res)
         {
           u = 0;
         }
+      }
+
+      if (j->next == NULL && c != 0)
+      {
+        ll_pushf(c, &l);
+        c = 0;
       }
     }
     
@@ -225,25 +232,6 @@ void calculate(struct node** n1, struct node** n2, struct node** res)
   }
 
   *res = l;
-
-  while (l->next != NULL)
-  {
-    l = l->next;
-  }
-
-  while (l != (*res)->prev)
-  {
-    d = l->data + c;
-    c = d / 10;
-    d = d % 10;
-    l->data = d;
-    l = l->prev;
-  }
-
-  if (c != 0)
-  {
-    ll_pushf(c, res);
-  }
 
   return;
 }

@@ -16,7 +16,6 @@ struct node
 
 void ll_pushf(int, struct node**);
 int ll_set_numbers(struct node** n1, struct node** n2);
-struct node* ll_rget_node(int, struct node**);
 int ll_fprint(struct node**);
 int ll_fprintr(struct node**);
 void ll_free(struct node**);
@@ -102,21 +101,6 @@ int ll_set_numbers(struct node** n1, struct node** n2)
   return EXIT_SUCCESS;
 }
 
-struct node* ll_rget_node(int index, struct node** list)
-{
-  int i;
-
-  struct node* n = NULL;
-
-  for (n = *list; n->next != NULL; n = n->next);
-  for (i = 0; i < index; i++)
-  {
-    n = n->prev;
-  }
-
-  return n;
-}
-
 int ll_fprint(struct node** list)
 {
   FILE* file;
@@ -183,9 +167,10 @@ void ll_free(struct node** list)
 void calculate(struct node** n1, struct node** n2, struct node** res)
 {
   char u = '0'; // 8 bit
-  int d, c = 0, b = 0;
+  int d, c = 0;
   struct node* i = NULL;
   struct node* j = NULL;
+  struct node* t = NULL;
 
   for (i = *n2; i != NULL; i = i->next)
   {
@@ -200,6 +185,12 @@ void calculate(struct node** n1, struct node** n2, struct node** res)
           d = d % 10;
 
           ll_pushf(d, res);
+
+          if (i == *n2 && j == *n1)
+          {
+            t = *res;
+          }
+
           break;
 
         default:
@@ -229,7 +220,8 @@ void calculate(struct node** n1, struct node** n2, struct node** res)
     if (i->next != NULL)
     {
       u = '1';
-      *res = ll_rget_node(++b, res);
+      t = t->prev;
+      *res = t;
     }
   }
 

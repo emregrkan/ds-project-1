@@ -15,7 +15,7 @@ struct node
 };
 
 void ll_pushf(int, struct node**);
-int ll_set_numbers(struct node** n1, struct node** n2);
+int ll_set_numbers(struct node**, struct node**);
 int ll_fprint(struct node**);
 int ll_fprintr(struct node**);
 void ll_free(struct node**);
